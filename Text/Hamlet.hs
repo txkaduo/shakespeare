@@ -46,6 +46,10 @@ module Text.Hamlet
     , attrsToHtml
      -- * low-level
     , hamletFromString
+    , hamletUsedIdentifiers
+    , runtimeContentToHtml
+    , contentFromString
+    , VarExp(..)
     ) where
 
 import Text.Shakespeare.Base

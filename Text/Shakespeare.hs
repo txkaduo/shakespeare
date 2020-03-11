@@ -31,6 +31,10 @@ module Text.Shakespeare
       -- * Internal
       -- can we remove this?
     , shakespeareRuntime
+    , VarExp(..)
+    , runtimeContentToShakespeare
+    , runtimeContentsFromString
+    , contentFromString
     , pack'
     ) where
 
@@ -462,8 +466,18 @@ shakespeareRuntime settings fp cd render' = unsafePerformIO $ do
         s <- preFilter (Just fp) settings str
         insertReloadMap fp (mtime, contentFromString settings s)
 
-    go' = mconcat . map go
+    go' = mconcat . map (flip (runtimeContentToShakespeare cd) render')
 
+
+runtimeContentsFromString :: Maybe FilePath -> ShakespeareSettings -> String -> IO [Content]
+runtimeContentsFromString m_fp settings str = do
+  s <- preFilter m_fp settings str
+  return $ contentFromString settings s
+
+
+runtimeContentToShakespeare :: [(Deref, VarExp url)] -> Content -> Shakespeare url
+runtimeContentToShakespeare cd content render' = go content
+  where
     go :: Content -> Builder
     go (ContentRaw s) = fromText $ TS.pack s
     go (ContentVar d) =
